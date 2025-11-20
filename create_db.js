@@ -78,19 +78,46 @@ export function createSchema(data){
   return schema;
 }
 
+export function createConfig(tableName, schema, primaryKeys){
+  return {
+    tableName: tableName,
+    schema: schema,
+    primaryKeys: primaryKeys,
+  };
+}
 
-export async function createTable(table, config, connection){
-  // va aggiunta la configurazione della primary key e le relazioni tra tabelle
-  let columnsDef = [];
-  const tableName = table.name;
-  
-  for([colName, colType] of table.columns.entries()){
-    columnsDef.push('\'${colName}\'${colType}');
+
+export async function createTable(config, connection){
+
+  const tableName = config.tableName;
+  const schema = config.schema;
+  const primarykeys = config.primaryKeys;
+  let  fieldsDef = [];
+  let complexPk = false;
+
+  if(primaryKeys.length > 1)
+    complexPk = true;
+    
+  schema.forEach(couple =>{
+    fieldsDef.add(couple.field + couple.type);
+    
+    if(!complexPk){  
+      if(primaryKeys.contains(couple.field)){
+        fieldsDef.add()
+      }
+    }
+  })
+
+  if(complexPk){
+    // cpstruisci la riga finale di impostazione della chiave
   }
-
-  const columnnsQuery = columnsDef.join(', ');
-  createQuery = 'CREATE TABLE \'${tableName}\' (${columnsQuery})';
-
+    
+  const query = 'CREATE TABLE ${tableName} (${fieldsDef})';
   console.log('CREATING TABLE ${tableName}');
-  await connection.execute(createQuery);
-} 
+  await connection.execute(query);
+}
+
+export async function fillTable(data, tableName){
+
+  
+}
