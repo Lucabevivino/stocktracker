@@ -72,7 +72,7 @@ export function createSchema(data){
       field: field,
       type: type;
     }
-    schema.add(couple);
+    schema.push(couple);
   })
 
   return schema;
@@ -93,26 +93,27 @@ export async function createTable(config, connection){
   const schema = config.schema;
   const primarykeys = config.primaryKeys;
   let  fieldsDef = [];
-  let complexPk = false;
-
-  if(primaryKeys.length > 1)
-    complexPk = true;
+  let complexPk = primaryKeys.length > 1;
     
   schema.forEach(couple =>{
-    fieldsDef.add(couple.field + couple.type);
+    fieldsDef.push(couple.field + couple.type);
     
     if(!complexPk){  
-      if(primaryKeys.contains(couple.field)){
-        fieldsDef.add()
+      if(primaryKeys.includes(couple.field)){
+        fieldsDef.push(couple.field)
       }
     }
   })
 
   if(complexPk){
-    // cpstruisci la riga finale di impostazione della chiave
+
+    let primaryKeyDef = `PRIMARY KEY (${primarykeys.join(',')})`;
+    const query = `CREATE TABLE ${tableName} (${fieldsDef.join(','), ${primaryKeyDef}})`;
+
+  }else{
+    const query = `CREATE TABLE ${tableName} (${fieldsDef.join(',')})`;  
   }
-    
-  const query = 'CREATE TABLE ${tableName} (${fieldsDef})';
+
   console.log('CREATING TABLE ${tableName}');
   await connection.execute(query);
 }
